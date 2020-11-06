@@ -13,8 +13,7 @@ Things To Do:
 '''
 from tkinter import *
 from tkinter import filedialog
-read = False
-write = False
+entries = []
 class Table:
 #We Can Use To Draw & Refresh The Table. Try To Redraw At The Same Time That We Save The File
     def __init__(self, root):
@@ -22,21 +21,33 @@ class Table:
         #nested for loops that build the table
         for i in range(rows):
             for j in range(cols):
-                #self.e = Entry(root, width=20, fg='blue',
-                 #              font=('Arial', 16, 'bold'))
-                #self.e.grid(row=i, column=j)
-                if read == True:
                     self.e = Entry(root, width=20, fg='blue',
                                    font=('Arial', 16, 'bold'))
                     self.e.grid(row=i, column=j)
                     self.e.insert(END, arr[i][j])
-                if write == True:
-                    testVar = self.e.get()
-                    print(testVar)
+
+    def setData(self):
+        print(arr)
+        for i in range(rows):
+            for j in range(cols):
+                self.e = Entry(root, width=20, fg='blue',
+                            font=('Arial', 16, 'bold'))
+                self.e.grid(row=i, column=j)
+                self.e.insert(END, arr[i][j])
+                entries.append(self.e) #this is the solution (Store entries I create into an Array)
+            print(self.e)
+
+    def getData(self):
+        index = 0
+        for i in range(rows):
+            for j in range(cols):
+                #print(entries)
+                arr[i][j] = entries[index].get()
+                index = index + 1
+        print(arr)
+
 def testRead():
-    global write
-    write = True
-    Table(root)
+    Table.getData(root)
 
 def readCsv(filepath):
     # Opening file
@@ -46,7 +57,8 @@ def readCsv(filepath):
     counter = -1
     for line in file1:
         input_string += line
-        counter+=1
+        counter += 1
+        line = line.strip('\n')
         line = line.split(',')
         size = len(line)
         for i in range(size):
@@ -61,11 +73,16 @@ def csvLength(filename):
     return lineNumbers
 
 def writeToFile(savefile):
+    Table.getData(root)
     fileToSaveTo = open(savefile, 'w')
     for i in range(rows):
-        fileToSaveTo.writelines("\n")
+        if i > 0:
+            fileToSaveTo.writelines("\n")
         for j in range(cols):
-            fileToSaveTo.write(arr[i][j])
+            if j < cols - 1:
+                fileToSaveTo.write(arr[i][j] + ",")
+            else:
+                fileToSaveTo.write(arr[i][j])
     fileToSaveTo.close()
 
 def arrayBuilder(lineNumbers):
@@ -94,10 +111,7 @@ def openfile():
     print ("opening file at  " +str(root.filename))
     csvLength(root.filename)
     readCsv(root.filename)
-    global read
-    read = True
-    Table(root)
-    read = False
+    Table.setData(root)
 
 def savefile():
     root.filenamesave = filedialog.asksaveasfilename(initialdir="read_text/", title="Select file", filetypes=(
